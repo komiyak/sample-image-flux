@@ -1,0 +1,137 @@
+<h1>画像S3ダイレクトアップローダ</h1>
+
+<div>
+  <div class="file-selector">
+    <label for="avatar">Choose a profile picture:</label>
+
+    <form class="js-form" action="" method="post" enctype="multipart/form-data">
+      <input type="file"
+             id="avatar" name="file"
+             accept="image/png, image/jpeg" />
+
+      <button type="submit">Real Submit</button>
+    </form>
+
+  </div>
+
+  <button type="submit" class="js-submit">Submit</button>
+</div>
+
+<style>
+  .file-selector {
+    margin-bottom: 16px;
+  }
+
+  .progress {
+    max-width: 600px;
+    margin: 0.2em 0 0.2em 0;
+  }
+
+  .progress .bar {
+    height: 1.2em;
+    padding-left: 0.2em;
+    color: white;
+    display: none;
+  }
+</style>
+
+<!-- Script Area -->
+
+<script
+  src="https://code.jquery.com/jquery-1.12.4.min.js"
+  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+  crossorigin="anonymous"></script>
+<script src="/js/jquery.ui.widget.js"></script>
+<script src="/js/jquery.iframe-transport.js"></script>
+<script src="/js/jquery.fileupload.js"></script>
+
+<script>
+    $(function () {
+        $('.js-submit').on('click', function () {
+            console.log('Uploading a process started.');
+
+            // Getting a presigned post information.
+            $.ajax({
+                url: '/image/presigned_post'
+            }).done((data) => {
+                var fields = data.data.fields;
+
+                console.log(data);
+
+                Object.keys(fields).forEach(function (key) {
+                    //$('.js-form').append('<input type="hidden" name="' + key + '" value="' + fields[key] + '" />');
+                    $('#avatar').before('<input type="hidden" name="' + key + '" value="' + fields[key] + '" />');
+                });
+                $('.js-form').attr('action', data.data.url);
+
+                //
+                // $('.js-form').data('form-data', fields);
+                // $('.js-form').data('url', data.data.url);
+                // $('.js-form').data('host', data.data.host);
+
+                // Submitting
+                // setTimeout(function() {
+                //     $('.js-form').submit();
+                // }, 1500);
+
+                // $('.js-form').ready(function () {
+                //     $('.js-form').find("input:file").each(function (i, elem) {
+                //         var fileInput = $(elem);
+                //         var form = $('.js-form');
+                //         var submitButton = $('.js-submit');
+                //         var progressBar = $("<div class='bar'></div>");
+                //         var barContainer = $("<div class='progress'></div>").append(progressBar);
+                //         fileInput.after(barContainer);
+                //
+                //         debugger;
+                //
+                //         fileInput.fileupload({
+                //             fileInput: fileInput,
+                //             url: form.data('url'),
+                //             type: 'POST',
+                //             autoUpload: true,
+                //             formData: form.data('form-data'),
+                //             paramName: 'file', // S3 does not like nested name fields i.e. name="user[avatar_url]"
+                //             dataType: 'XML',  // S3 returns XML if success_action_status is set to 201
+                //             replaceFileInput: false,
+                //             progressall: function (e, data) {
+                //                 console.log('progressall');
+                //
+                //                 var progress = parseInt(data.loaded / data.total * 100, 10);
+                //                 progressBar.css('width', progress + '%')
+                //             },
+                //             start: function (e) {
+                //                 console.log('start');
+                //
+                //                 submitButton.prop('disabled', true);
+                //
+                //                 progressBar.css('background', 'green').css('display', 'block').css('width', '0%').text("Loading...");
+                //             },
+                //             done: function (e, data) {
+                //                 console.log('done');
+                //
+                //                 submitButton.prop('disabled', false);
+                //                 progressBar.text("Uploading done");
+                //
+                //                 // extract key and generate URL from response
+                //                 var key = $(data.jqXHR.responseXML).find("Key").text();
+                //                 var url = '//' + form.data('host') + '/' + key;
+                //
+                //                 // create hidden field
+                //                 var input = $("<input />", {type: 'hidden', name: fileInput.attr('name'), value: url})
+                //                 form.append(input);
+                //             },
+                //             fail: function (e, data) {
+                //                 console.log('fail');
+                //
+                //                 submitButton.prop('disabled', false);
+                //
+                //                 progressBar.css("background", "red").text("Failed");
+                //             }
+                //         });
+                //     });
+                // });
+            });
+        });
+    });
+</script>
